@@ -1,8 +1,12 @@
-name = "cf-general-worker"
+name = "general-worker"
 type = "javascript"
 
-account_id = ""
+account_id = "886f9e2c968742f11e6743fb4753e067"
 workers_dev = true
 route = ""
 zone_id = ""
 compatibility_date = "2021-10-15"
+
+kv_namespaces = [ 
+    { binding = "GENERAL_KV", id = "7c5876de5bac4e06bc61afcd21852f48" }
+]
