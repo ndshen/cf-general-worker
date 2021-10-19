@@ -13,6 +13,7 @@ function handleOptions(request) {
   // Make sure the necessary headers are present
   // for this to be a valid pre-flight request
   let headers = request.headers;
+  
   if (
     headers.get("Origin") !== null &&
     headers.get("Access-Control-Request-Method") !== null &&
@@ -62,10 +63,9 @@ async function handleRequest(request) {
   
   else if (request.method === "POST") {
     const reqBody = await readRequestBody(request);
-    console.log(reqBody);
     const dataObj = JSON.parse(reqBody);
     await addPost(dataObj);
-    return new Response("Success.", {headers: corsHeaders, status: 200});
+    return new Response(JSON.stringify(dataObj), {headers: corsHeaders, status: 201});
   }
 
   return new Response(`${request.method} not implemented`, {
@@ -74,7 +74,10 @@ async function handleRequest(request) {
 }
 
 async function retrieveAllPosts() {
-  const value = await GENERAL_KV.get('posts')
+  let value = await GENERAL_KV.get('posts')
+  if (value === "" || value === null) {
+    value = "[]";
+  }
   return value;
 }
 
