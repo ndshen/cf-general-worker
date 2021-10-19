@@ -4,6 +4,43 @@ addEventListener('fetch', event => {
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+  "Access-Control-Max-Age": "86400",
+}
+
+function handleOptions(request) {
+  // Make sure the necessary headers are present
+  // for this to be a valid pre-flight request
+  let headers = request.headers;
+  if (
+    headers.get("Origin") !== null &&
+    headers.get("Access-Control-Request-Method") !== null &&
+    headers.get("Access-Control-Request-Headers") !== null
+  ){
+    // Handle CORS pre-flight request.
+    // If you want to check or reject the requested method + headers
+    // you can do that here.
+    let respHeaders = {
+      ...corsHeaders,
+    // Allow all future content Request headers to go back to browser
+    // such as Authorization (Bearer) or X-Client-Name-Version
+      "Access-Control-Allow-Headers": request.headers.get("Access-Control-Request-Headers"),
+    }
+
+    return new Response(null, {
+      headers: respHeaders,
+    })
+  }
+  else {
+    // Handle standard OPTIONS request.
+    // If you want to allow other HTTP Methods, you can do that here.
+    return new Response(null, {
+      headers: {
+        Allow: "GET, HEAD, POST, OPTIONS",
+      },
+    })
+  }
 }
 
 /**
@@ -11,7 +48,10 @@ const corsHeaders = {
  * @param {Request} request
  */
 async function handleRequest(request) {
-  if (request.method === "GET") {
+  if (request.method === "OPTIONS") {
+    return handleOptions(request);
+  }
+  else if (request.method === "GET") {
     const posts = await retrieveAllPosts();
     if (posts == null) {
       return new Response("No posts yet.", {headers: corsHeaders, status: 404});
@@ -25,7 +65,7 @@ async function handleRequest(request) {
     console.log(reqBody);
     const dataObj = JSON.parse(reqBody);
     await addPost(dataObj);
-    return new Response("Success.", {headers: corsHeaders});
+    return new Response("Success.", {headers: corsHeaders, status: 200});
   }
 
   return new Response(`${request.method} not implemented`, {
