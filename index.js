@@ -1,6 +1,11 @@
 addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
 })
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+}
+
 /**
  * Routes the request to different action.
  * @param {Request} request
@@ -9,10 +14,10 @@ async function handleRequest(request) {
   if (request.method === "GET") {
     const posts = await retrieveAllPosts();
     if (posts == null) {
-      return new Response("No posts yet.", {status: 404});
+      return new Response("No posts yet.", {headers: corsHeaders, status: 404});
     }
 
-    return new Response(posts);
+    return new Response(posts, {headers: corsHeaders});
   }
   
   else if (request.method === "POST") {
@@ -20,11 +25,11 @@ async function handleRequest(request) {
     console.log(reqBody);
     const dataObj = JSON.parse(reqBody);
     await addPost(dataObj);
-    return new Response("Success.");
+    return new Response("Success.", {headers: corsHeaders});
   }
 
   return new Response(`${request.method} not implemented`, {
-    status: 501,
+    headers: corsHeaders, status: 501,
   })
 }
 
