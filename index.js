@@ -86,7 +86,7 @@ async function addPost(dataObj) {
   const existingPostsStr = await retrieveAllPosts();
   let existingPosts = JSON.parse(existingPostsStr);
   existingPosts = (existingPosts === null) ? [] : existingPosts;
-  existingPosts.push(dataObj);
+  existingPosts.unshift(dataObj);
   return GENERAL_KV.put('posts', JSON.stringify(existingPosts));
 }
 
